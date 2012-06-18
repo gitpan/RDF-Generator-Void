@@ -3,10 +3,11 @@ package RDF::Generator::Void;
 use 5.006;
 use strict;
 use warnings;
-use Any::Moose;
-use Any::Moose '::Util::TypeConstraints';
+use Moose;
+use Moose::Util::TypeConstraints;
 use Data::UUID;
 use RDF::Trine qw[iri literal blank variable statement];
+use less ();
 
 # Define some namespace prefixes
 my $void = RDF::Trine::Namespace->new('http://rdfs.org/ns/void#');
@@ -20,7 +21,7 @@ RDF::Generator::Void - Generate voiD descriptions based on data in an RDF model
 
 =head1 VERSION
 
-Version 0.01_01
+Version 0.01_11
 
 Note that this is an early alpha release. It has pretty limited
 functionality, and there may very significant changes in this module
@@ -28,7 +29,7 @@ coming up really soon.
 
 =cut
 
-our $VERSION = '0.01_10';
+our $VERSION = '0.01_11';
 
 =head1 SYNOPSIS
 
@@ -47,7 +48,7 @@ model with a voiD description of the data in the model.
 
 =head1 METHODS
 
-=head2 new(inmodel => $mymodel, dataset_uri = URI->new($dataset_uri));
+=head2 new(inmodel => $mymodel, dataset_uri => URI->new($dataset_uri));
 
 =head2 inmodel
 
@@ -88,12 +89,6 @@ sub _build_dataset_uri
   my ($self) = @_;
   return iri sprintf('urn:uuid:%s', Data::UUID->new->create_str);
 }
-
-has is_speedy => (
-  is       => 'ro',
-  isa      => 'Bool',
-  default  => 0,
-  );
 
 has vocabulary => (
 						 is       => 'rw',
@@ -171,6 +166,12 @@ has license => (
 										 },
     );
 
+has urispace => (
+					  is        => 'rw',
+					  isa       => 'Str',
+					  predicate => 'has_urispace',
+					 );
+
 
 has stats => (
   is       => 'rw',
@@ -184,7 +185,7 @@ sub _build_stats
 {
   my ($self) = @_;
   
-  my (%vocab_counter);
+  my (%vocab_counter, %entities);
   
   $self->inmodel->get_statements->each(sub
   {
@@ -196,14 +197,33 @@ sub _build_stats
       my ($vocab_uri) = $st->predicate->qname;
       $vocab_counter{$vocab_uri}++;
     };
+
+	 if ($self->has_urispace) {
+		 # Compute entities
+		 (my $urispace = $self->urispace) =~ s/\./\\./g;
+		 $entities{$st->subject->uri_value} = 1 if ($st->subject->uri_value =~ m/^$urispace/);
+	 }
+	 
   });
   
   return +{
     vocabularies  => \%vocab_counter,
+	 entities => scalar keys %entities,
   };
 }
 
 =head2 generate
+
+Returns the voiD as an RDF::Trine::Model.
+
+For larger models, you may be able to achieve a significant improvement
+in speed using:
+
+  use less 'CPU';
+  $voidmodel = $generator->generate;
+
+Though to save CPU some of the more interesting statistics will not have
+been generated.
 
 =cut
 
@@ -212,6 +232,8 @@ sub generate
   my $self = shift;
 
   $self->clear_stats;
+
+  my $less_of = less->can('of') || sub { 0 };
 
   # Create a model for adding VoID description
   local $self->{void_model} =
@@ -223,6 +245,20 @@ sub generate
     $rdf->type,
     $void->Dataset,
   ));
+
+  if ($self->has_urispace) {
+	  $void_model->add_statement(statement(
+														$self->dataset_uri,
+														$void->uriSpace,
+														literal($self->urispace)
+													  ));
+	  $void_model->add_statement(statement(
+														$self->dataset_uri,
+														$void->entities,
+														literal($self->stats->{entities}, undef, $xsd->integer),
+													  ));
+
+  }
 
   foreach my $endpoint ($self->all_endpoints) {
 	  $void_model->add_statement(statement(
@@ -250,7 +286,7 @@ sub generate
 
 
   $self->_generate_triple_count;
-  $self->_generate_most_common_vocabs unless $self->is_speedy;
+  $self->_generate_most_common_vocabs unless $less_of->('CPU');
   
   return $void_model;
 }
