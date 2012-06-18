@@ -1,0 +1,73 @@
+NAME
+    RDF::Generator::Void - Generate voiD descriptions based on data in an
+    RDF model
+
+VERSION
+    Version 0.01_01
+
+    Note that this is an early alpha release. It has pretty limited
+    functionality, and there may very significant changes in this module
+    coming up really soon.
+
+SYNOPSIS
+      use RDF::Generator::Void;
+      use RDF::Trine::Model;
+      my $mymodel   = RDF::Trine::Model->temporary_model;
+      [add some data to $mymodel here]
+      my $generator = RDF::Generator::Void->new(inmodel => $mymodel);
+      my $voidmodel = $generator->generate;
+
+DESCRIPTION
+    This module takes a RDF::Trine::Model object as input to the
+    constructor, and based on the data in that model, it creates a new model
+    with a voiD description of the data in the model.
+
+METHODS
+  new(inmodel => $mymodel, dataset_uri = URI->new($dataset_uri));
+  inmodel
+    Read-only accessor
+
+  dataset_uri
+    Read-only accessor
+
+  generate
+AUTHORS
+    Kjetil Kjernsmo Toby Inkster Tope Omitola, "<tope.omitola at
+    googlemail.com>"
+
+BUGS
+    Please report any bugs you find to
+    <https://github.com/kjetilk/RDF-Generator-Void/issues>
+
+SUPPORT
+    You can find documentation for this module with the perldoc command.
+
+        perldoc RDF::Generator::Void
+
+    The Perl and RDF community website is at <http://www.perlrdf.org/> where
+    you can also find a mailing list to direct questions to.
+
+    You can also look for information at:
+
+    *   AnnoCPAN: Annotated CPAN documentation
+
+        <http://annocpan.org/dist/RDF-Generator-Void>
+
+    *   CPAN Ratings
+
+        <http://cpanratings.perl.org/d/RDF-Generator-Void>
+
+    *   Search CPAN
+
+        <http://search.cpan.org/dist/RDF-Generator-Void/>
+
+ACKNOWLEDGEMENTS
+LICENSE AND COPYRIGHT
+    Copyright 2012 Tope Omitola, Kjetil Kjernsmo, Toby Inkster.
+
+    This program is free software; you can redistribute it and/or modify it
+    under the terms of either: the GNU General Public License as published
+    by the Free Software Foundation; or the Artistic License.
+
+    See http://dev.perl.org/licenses/ for more information.
+
