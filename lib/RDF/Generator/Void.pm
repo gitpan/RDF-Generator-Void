@@ -7,7 +7,7 @@ use Moose;
 use Moose::Util::TypeConstraints;
 use Data::UUID;
 use RDF::Trine qw[iri literal blank variable statement];
-use less ();
+# use less ();
 
 # Define some namespace prefixes
 my $void = RDF::Trine::Namespace->new('http://rdfs.org/ns/void#');
@@ -21,7 +21,7 @@ RDF::Generator::Void - Generate voiD descriptions based on data in an RDF model
 
 =head1 VERSION
 
-Version 0.01_11
+Version 0.01_12
 
 Note that this is an early alpha release. It has pretty limited
 functionality, and there may very significant changes in this module
@@ -29,7 +29,7 @@ coming up really soon.
 
 =cut
 
-our $VERSION = '0.01_11';
+our $VERSION = '0.01_12';
 
 =head1 SYNOPSIS
 
@@ -185,7 +185,7 @@ sub _build_stats
 {
   my ($self) = @_;
   
-  my (%vocab_counter, %entities);
+  my (%vocab_counter, %entities, %properties, %subjects, %objects);
   
   $self->inmodel->get_statements->each(sub
   {
@@ -203,27 +203,26 @@ sub _build_stats
 		 (my $urispace = $self->urispace) =~ s/\./\\./g;
 		 $entities{$st->subject->uri_value} = 1 if ($st->subject->uri_value =~ m/^$urispace/);
 	 }
-	 
+
+	 $subjects{$st->subject->uri_value} = 1;
+	 $properties{$st->predicate->uri_value} = 1;
+	 $objects{$st->object->sse} = 1;
+
+
   });
-  
+
   return +{
     vocabularies  => \%vocab_counter,
 	 entities => scalar keys %entities,
+    properties => scalar keys %properties,
+	 subjects => scalar keys %subjects,
+	 objects => scalar keys %objects,
   };
 }
 
 =head2 generate
 
 Returns the voiD as an RDF::Trine::Model.
-
-For larger models, you may be able to achieve a significant improvement
-in speed using:
-
-  use less 'CPU';
-  $voidmodel = $generator->generate;
-
-Though to save CPU some of the more interesting statistics will not have
-been generated.
 
 =cut
 
@@ -232,8 +231,6 @@ sub generate
   my $self = shift;
 
   $self->clear_stats;
-
-  my $less_of = less->can('of') || sub { 0 };
 
   # Create a model for adding VoID description
   local $self->{void_model} =
@@ -259,6 +256,23 @@ sub generate
 													  ));
 
   }
+
+  $void_model->add_statement(statement(
+													$self->dataset_uri,
+													$void->distinctSubjects,
+													literal($self->stats->{subjects}, undef, $xsd->integer),
+												  ));
+  $void_model->add_statement(statement(
+													$self->dataset_uri,
+													$void->properties,
+													literal($self->stats->{properties}, undef, $xsd->integer),
+												  ));
+  $void_model->add_statement(statement(
+													$self->dataset_uri,
+													$void->distinctObjects,
+													literal($self->stats->{objects}, undef, $xsd->integer),
+												  ));
+
 
   foreach my $endpoint ($self->all_endpoints) {
 	  $void_model->add_statement(statement(
@@ -286,7 +300,7 @@ sub generate
 
 
   $self->_generate_triple_count;
-  $self->_generate_most_common_vocabs unless $less_of->('CPU');
+  $self->_generate_most_common_vocabs;
   
   return $void_model;
 }
