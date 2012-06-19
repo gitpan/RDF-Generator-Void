@@ -3,8 +3,8 @@ package RDF::Generator::Void;
 use 5.006;
 use strict;
 use warnings;
-use Any::Moose;
-use Any::Moose '::Util::TypeConstraints';
+use Moose;
+use Moose::Util::TypeConstraints;
 use Data::UUID;
 use RDF::Trine qw[iri literal blank variable statement];
 use RDF::Generator::Void::Stats;
@@ -18,11 +18,11 @@ my $dct  = RDF::Trine::Namespace->new('http://purl.org/dc/terms/');
 
 =head1 NAME
 
-RDF::Generator::Void - Generate voiD descriptions based on data in an RDF model
+RDF::Generator::Void - Generate VoID descriptions based on data in an RDF model
 
 =head1 VERSION
 
-Version 0.01_13
+Version 0.01_15
 
 Note that this is an early alpha release. It has pretty limited
 functionality, and there may very significant changes in this module
@@ -30,7 +30,7 @@ coming up really soon.
 
 =cut
 
-our $VERSION = '0.01_13';
+our $VERSION = '0.01_15';
 
 =head1 SYNOPSIS
 
@@ -39,25 +39,37 @@ our $VERSION = '0.01_13';
   my $mymodel   = RDF::Trine::Model->temporary_model;
   [add some data to $mymodel here]
   my $generator = RDF::Generator::Void->new(inmodel => $mymodel);
+  $generator->urispace('http://example.org');
+  $generator->add_endpoints('http://example.org/sparql');
   my $voidmodel = $generator->generate;
 
 =head1 DESCRIPTION
 
 This module takes a L<RDF::Trine::Model> object as input to the
-constructor, and based on the data in that model, it creates a new
-model with a voiD description of the data in the model.
+constructor, and based on the data in that model as well as data
+supplied by the user, it creates a new model with a VoID description
+of the data in the model.
+
+For a description of VoID, see L<http://www.w3.org/TR/void/>.
 
 =head1 METHODS
 
 =head2 new(inmodel => $mymodel, dataset_uri => URI->new($dataset_uri));
 
-=head2 inmodel
+The constructor. It can be called with two parameters, namely,
+C<inmodel> which is a model we want to describe and C<dataset_uri>,
+which is the URI we want to use for the description. Users should make
+sure it is possible to get this with HTTP. If this is not possible,
+you may leave this field empty so that a simple URN can be created for
+you as a default.
 
-Read-only accessor
+=head2 C<inmodel>
 
-=head2 dataset_uri
+Read-only accessor for the model used in description creation.
 
-Read-only accessor
+=head2 C<dataset_uri>
+
+Read-only accessor for the URI to the dataset.
 
 =cut
 
@@ -90,6 +102,22 @@ sub _build_dataset_uri {
 	return iri sprintf('urn:uuid:%s', Data::UUID->new->create_str);
 }
 
+=head2 Property Attributes
+
+The below attributes concern some essential properties in the VoID
+vocabulary. They are mostly arrays, and can be manipulated using array
+methods. Methods starting with C<all_> will return an array of unique
+values. Methods starting with C<add_> takes a list of values to add,
+and those starting with C<has_no_> return a boolean value, false if
+the array is empty.
+
+=head3 C<vocabulary>, C<all_vocabularies>, C<add_vocabularies>, C<has_no_vocabularies>
+
+Methods to manipulate a list of vocabularies used in the dataset. The
+values should be a string that represents the URI of a vocabulary.
+
+=cut
+
 has vocabulary => (
 						 is       => 'rw',
 						 traits   => ['Array'],
@@ -98,16 +126,18 @@ has vocabulary => (
 						 handles  => {
 										  all_vocabularies    => 'uniq',
 										  add_vocabularies    => 'push',
-										  map_vocabularies    => 'map',
-										  filter_vocabularies => 'grep',
-										  find_vocabulary     => 'first',
-										  get_vocabulary      => 'get',
-										  join_vocabularies   => 'join',
-										  count_vocabularies  => 'count',
 										  has_no_vocabularies => 'is_empty',
-										  sorted_vocabularies => 'sort',
 										 },
 						);
+
+=head3 C<endpoint>, C<all_endpoints>, C<add_endpoints>, C<has_no_endpoints>
+
+Methods to manipulate a list of SPARQL endpoints that can be used to
+query the dataset. The values should be a string that represents the
+URI of a SPARQL endpoint.
+
+=cut
+
 
 has endpoint => (
 					  is       => 'rw',
@@ -117,16 +147,18 @@ has endpoint => (
 					  handles  => {
 										all_endpoints    => 'uniq',
 										add_endpoints    => 'push',
-										map_endpoints    => 'map',
-										filter_endpoints => 'grep',
-										find_endpoint     => 'first',
-										get_endpoint      => 'get',
-										join_endpoints   => 'join',
-										count_endpoints  => 'count',
 										has_no_endpoints => 'is_empty',
-										sorted_endpoints => 'sort',
 									  },
 					 );
+
+=head3 C<title>, C<all_titles>, C<add_titles>, C<has_no_titles>
+
+Methods to manipulate the titles of the datasets. The values should be
+L<RDF::Trine::Node::Literal> objects, and should be set with
+language. Typically, you would have a value per language.
+
+=cut
+
 
 has title => (
 				  is       => 'rw',
@@ -136,16 +168,18 @@ has title => (
 				  handles  => {
 									all_titles    => 'uniq',
 									add_titles    => 'push',
-									map_titles    => 'map',
-									filter_title => 'grep',
-									find_title     => 'first',
-									get_title      => 'get',
-									join_titles   => 'join',
-									count_titles  => 'count',
-									has_no_title => 'is_empty',
-									sorted_title => 'sort',
+									has_no_titles => 'is_empty',
 								  },
 				 );
+
+
+=head3 C<license>, C<all_licenses>, C<add_licenses>, C<has_no_licenses>
+
+Methods to manipulate a list of licenses that regulates the use of the
+dataset. The values should be a string that represents the URI of a
+license.
+
+=cut
 
 has license => (
 					 is       => 'rw',
@@ -155,16 +189,18 @@ has license => (
 					 handles  => {
 									  all_licenses    => 'uniq',
 									  add_licenses    => 'push',
-									  map_licenses    => 'map',
-									  filter_license => 'grep',
-									  find_license     => 'first',
-									  get_license      => 'get',
-									  join_licenses   => 'join',
-									  count_licenses  => 'count',
-									  has_no_license => 'is_empty',
-									  sorted_license => 'sort',
+									  has_no_licenses => 'is_empty',
 									 },
 					);
+
+=head3 C<urispace>, C<has_urispace>
+
+This method is used to set the URI prefix string that will match the
+entities in your dataset. The computation of the number of entities
+depends on this being set. C<has_urispace> can be used to check if it
+is set.
+
+=cut
 
 has urispace => (
 					  is        => 'rw',
@@ -172,6 +208,15 @@ has urispace => (
 					  predicate => 'has_urispace',
 					 );
 
+=head2 Running this stuff
+
+=head3 C<stats>, C<clear_stats>, C<has_stats>
+
+Method to compute a statistical summary for the data in the dataset,
+such as the number of entities, predicates, etc. C<clear_stats> will
+clear the statistics and C<has_stats> will return true if exists.
+
+=cut
 
 has stats => (
 				  is       => 'rw',
@@ -188,9 +233,9 @@ sub _build_stats {
 }
 
 
-=head2 generate
+=head3 generate
 
-Returns the voiD as an RDF::Trine::Model.
+Returns the VoID as an RDF::Trine::Model.
 
 =cut
 
@@ -289,9 +334,42 @@ sub _generate_most_common_vocabs {
 
 =head1 AUTHORS
 
-Kjetil Kjernsmo
-Toby Inkster
+Kjetil Kjernsmo C<< <kjetilk@cpan.org> >>
+Toby Inkster C<< <tobyink@cpan.org> >>
 Tope Omitola, C<< <tope.omitola at googlemail.com> >>
+
+=head1 TODO
+
+=over
+
+=item * Allow arbitrary RDF to be added to the VoID.
+
+=item * Larger test dataset for more extensive tests.
+
+=item * URI regexps support.
+
+=item * Partitioning based on properties and classes.
+
+=item * Technical features (esp. serializations).
+
+=item * Example resources and root resources.
+
+=item * Data dumps.
+
+=item * Subject classification.
+
+=item * Method to disable heuristics.
+
+=item * More heuristics.
+
+=item * Linkset descriptions.
+
+=item * Set URI space on partitions.
+
+=item * Conditional updates based on model ETags.
+
+=back
+
 
 =head1 BUGS
 
@@ -319,9 +397,9 @@ L<http://annocpan.org/dist/RDF-Generator-Void>
 
 L<http://cpanratings.perl.org/d/RDF-Generator-Void>
 
-=item * Search CPAN
+=item * MetaCPAN
 
-L<http://search.cpan.org/dist/RDF-Generator-Void/>
+L<https://metacpan.org/module/RDF::Generator::Void>
 
 =back
 
