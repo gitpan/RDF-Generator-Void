@@ -22,9 +22,12 @@ no_index:
     - inc
     - t
     - xt
+recommends:
+  MooseMouseX::NativeTraits: 0
 requires:
+  Any::Moose: 0.04
   Data::UUID: 0
-  Moose: 0
+  MouseMouseX::NativeTraits: 0
   RDF::Trine: 0
   URI: 0
   perl: 5.6.0
@@ -32,4 +35,4 @@ resources:
   bugtracker: https://github.com/kjetilk/RDF-Generator-Void/issues
   license: http://dev.perl.org/licenses/
   repository: git://github.com/kjetilk/RDF-Generator-Void.git
-version: 0.01_12
+version: 0.01_13
