@@ -23,15 +23,16 @@ RDF::Generator::Void - Generate VoID descriptions based on data in an RDF model
 
 =head1 VERSION
 
-Version 0.01_16
+Version 0.02
 
-Note that this is an early alpha release. It has pretty limited
-functionality, and there may very significant changes in this module
+Note that this is a beta release. It has the core functionality in
+place to create a basic VoID description and what's there should be
+working well. Nevertheless significant changes in this module may be
 coming up really soon.
 
 =cut
 
-our $VERSION = '0.01_16';
+our $VERSION = '0.02';
 
 =head1 SYNOPSIS
 
@@ -80,6 +81,8 @@ has inmodel => (
 					 required => 1,
 					);
 
+# This is setting up the dataset_uri method, and make it possible to
+# create a resource of it from strings or URI objects.
 class_type 'URI';
 
 subtype 'DatasetURI',
@@ -98,6 +101,7 @@ has dataset_uri => (
 						  coerce   => 1,
 						 );
 
+# This will create a URN with a UUID by default
 sub _build_dataset_uri {
 	my ($self) = @_;
 	return iri sprintf('urn:uuid:%s', Data::UUID->new->create_str);
@@ -119,6 +123,9 @@ values should be a string that represents the URI of a vocabulary.
 
 =cut
 
+# All the following attributes have that in common that they
+# automatically the method names also specified in handles, to
+# manipulate and query the data.
 has vocabulary => (
 						 is       => 'rw',
 						 traits   => ['Array'],
@@ -203,6 +210,8 @@ is set.
 
 =cut
 
+# There should only be a single uriSpace per Dataset (but there may be
+# more for subsets), thus this is a simple scalar attribute.
 has urispace => (
 					  is        => 'rw',
 					  isa       => 'Str',
@@ -219,6 +228,8 @@ clear the statistics and C<has_stats> will return true if exists.
 
 =cut
 
+# In practice, this method just calls the ::Stats class to do
+# everything.
 has stats => (
 				  is       => 'rw',
 				  isa      => 'RDF::Generator::Void::Stats',
@@ -368,6 +379,8 @@ Tope Omitola, C<< <tope.omitola at googlemail.com> >>
 =item * Set URI space on partitions.
 
 =item * Conditional updates based on model ETags.
+
+=item * Save the description to files?
 
 =back
 

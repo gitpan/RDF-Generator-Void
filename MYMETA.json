@@ -45,7 +45,7 @@
          }
       }
    },
-   "release_status" : "testing",
+   "release_status" : "stable",
    "resources" : {
       "bugtracker" : {
          "web" : "https://github.com/kjetilk/RDF-Generator-Void/issues"
@@ -57,5 +57,5 @@
          "url" : "git://github.com/kjetilk/RDF-Generator-Void.git"
       }
    },
-   "version" : "0.01_16"
+   "version" : "0.02"
 }
