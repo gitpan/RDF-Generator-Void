@@ -23,7 +23,7 @@ RDF::Generator::Void - Generate VoID descriptions based on data in an RDF model
 
 =head1 VERSION
 
-Version 0.02
+Version 0.04
 
 Note that this is a beta release. It has the core functionality in
 place to create a basic VoID description and what's there should be
@@ -32,7 +32,7 @@ coming up really soon.
 
 =cut
 
-our $VERSION = '0.02';
+our $VERSION = '0.04';
 
 =head1 SYNOPSIS
 
@@ -245,18 +245,20 @@ sub _build_stats {
 }
 
 
-=head3 generate
+=head3 generate( [ $model ] )
 
-Returns the VoID as an RDF::Trine::Model.
+Returns the VoID as an RDF::Trine::Model. You may pass a model with
+statements as argument to this method. This model may then contain
+arbitrary RDF that will be added to the RDF model. If you do not send
+a model, one will be created for you.
 
 =cut
 
 sub generate {
 	my $self = shift;
+	my $void_model = shift || RDF::Trine::Model->temporary_model;
 
-	# Create a model for adding VoID description
-	local $self->{void_model} =
-	  my $void_model = RDF::Trine::Model->temporary_model;
+	local $self->{void_model} = $void_model;
 
 	# Start generating the actual VoID statements
 	$void_model->add_statement(statement(

@@ -3,7 +3,7 @@ NAME
     RDF model
 
 VERSION
-    Version 0.02
+    Version 0.04
 
     Note that this is a beta release. It has the core functionality in place
     to create a basic VoID description and what's there should be working
@@ -82,8 +82,11 @@ METHODS
     such as the number of entities, predicates, etc. "clear_stats" will
     clear the statistics and "has_stats" will return true if exists.
 
-   generate
-    Returns the VoID as an RDF::Trine::Model.
+   generate( [ $model ] )
+    Returns the VoID as an RDF::Trine::Model. You may pass a model with
+    statements as argument to this method. This model may then contain
+    arbitrary RDF that will be added to the RDF model. If you do not send a
+    model, one will be created for you.
 
 AUTHORS
     Kjetil Kjernsmo "<kjetilk@cpan.org>" Toby Inkster "<tobyink@cpan.org>"

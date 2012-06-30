@@ -4,14 +4,14 @@ author:
   - 'Kjetil Kjernsmo C<< <kjetilk@cpan.org> >>'
   - 'Kjetil Kjernsmo <kjetilk@cpan.org>'
 build_requires:
-  ExtUtils::MakeMaker: 6.42
+  ExtUtils::MakeMaker: 6.62
   FindBin: 0
   Test::More: 0.88
   Test::RDF: 0.2
 configure_requires:
-  ExtUtils::MakeMaker: 6.42
+  ExtUtils::MakeMaker: 6.62
 dynamic_config: 0
-generated_by: 'Module::Install version 1.02, CPAN::Meta::Converter version 2.112150'
+generated_by: 'Module::Install version 1.04, CPAN::Meta::Converter version 2.120921'
 license: perl
 meta-spec:
   url: http://module-build.sourceforge.net/META-spec-v1.4.html
@@ -32,4 +32,4 @@ resources:
   bugtracker: https://github.com/kjetilk/RDF-Generator-Void/issues
   license: http://dev.perl.org/licenses/
   repository: git://github.com/kjetilk/RDF-Generator-Void.git
-version: 0.02
+version: 0.04
