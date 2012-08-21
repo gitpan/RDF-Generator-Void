@@ -3,7 +3,7 @@ NAME
     RDF model
 
 VERSION
-    Version 0.04
+    Version 0.05_1
 
     Note that this is a beta release. It has the core functionality in place
     to create a basic VoID description and what's there should be working
@@ -77,6 +77,11 @@ METHODS
     set.
 
   Running this stuff
+   "level", "has_level"
+    Set the level of detail. 0 doesn't do any statistics or heuristics, 1
+    has some statistics for the dataset as a whole. Setting no level will
+    give everything.
+
    "stats", "clear_stats", "has_stats"
     Method to compute a statistical summary for the data in the dataset,
     such as the number of entities, predicates, etc. "clear_stats" will
@@ -90,11 +95,8 @@ METHODS
 
 AUTHORS
     Kjetil Kjernsmo "<kjetilk@cpan.org>" Toby Inkster "<tobyink@cpan.org>"
-    Tope Omitola, "<tope.omitola at googlemail.com>"
 
 TODO
-    *   Allow arbitrary RDF to be added to the VoID.
-
     *   Larger test dataset for more extensive tests.
 
     *   URI regexps support.
@@ -116,8 +118,6 @@ TODO
     *   Linkset descriptions.
 
     *   Set URI space on partitions.
-
-    *   Conditional updates based on model ETags.
 
     *   Save the description to files?
 
@@ -149,7 +149,7 @@ SUPPORT
 
 ACKNOWLEDGEMENTS
 LICENSE AND COPYRIGHT
-    Copyright 2012 Tope Omitola, Kjetil Kjernsmo, Toby Inkster.
+    Copyright 2012 Kjetil Kjernsmo, Toby Inkster.
 
     This program is free software; you can redistribute it and/or modify it
     under the terms of either: the GNU General Public License as published

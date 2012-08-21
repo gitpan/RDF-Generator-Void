@@ -23,7 +23,7 @@ RDF::Generator::Void - Generate VoID descriptions based on data in an RDF model
 
 =head1 VERSION
 
-Version 0.04
+Version 0.05_1
 
 Note that this is a beta release. It has the core functionality in
 place to create a basic VoID description and what's there should be
@@ -32,7 +32,7 @@ coming up really soon.
 
 =cut
 
-our $VERSION = '0.04';
+our $VERSION = '0.05_1';
 
 =head1 SYNOPSIS
 
@@ -220,6 +220,17 @@ has urispace => (
 
 =head2 Running this stuff
 
+=head3 C<level>, C<has_level>
+
+Set the level of detail. 0 doesn't do any statistics or heuristics, 1
+has some statistics for the dataset as a whole. Setting no level will
+give everything.
+
+=cut
+
+has level => (is => 'rw', isa => 'Int', predicate => 'has_level');
+
+
 =head3 C<stats>, C<clear_stats>, C<has_stats>
 
 Method to compute a statistical summary for the data in the dataset,
@@ -267,20 +278,6 @@ sub generate {
 													 $void->Dataset,
 													));
 
-	if ($self->has_urispace) {
-		$void_model->add_statement(statement(
-														 $self->dataset_uri,
-														 $void->uriSpace,
-														 literal($self->urispace)
-														));
-		$self->_generate_counts($void->entities, $self->stats->entities);
-	}
-
-	$self->_generate_counts($void->distinctSubjects, $self->stats->subjects);
-	$self->_generate_counts($void->properties, $self->stats->properties);
-	$self->_generate_counts($void->distinctObjects, $self->stats->objects);
-
-
 	foreach my $endpoint ($self->all_endpoints) {
 		$void_model->add_statement(statement(
 														 $self->dataset_uri,
@@ -311,8 +308,31 @@ sub generate {
 													 $void->triples,
 													 literal($self->inmodel->size, undef, $xsd->integer),
 													));
+
+	if ($self->has_urispace) {
+		$void_model->add_statement(statement(
+														 $self->dataset_uri,
+														 $void->uriSpace,
+														 literal($self->urispace)
+														));
+		return $void_model if ($self->has_level && $self->level == 0);
+		$self->_generate_counts($void->entities, $self->stats->entities);
+	}
+
+	return $void_model if ($self->has_level && $self->level == 0);
+	$self->_generate_counts($void->distinctSubjects, $self->stats->subjects);
+	$self->_generate_counts($void->properties, $self->stats->properties);
+	$self->_generate_counts($void->distinctObjects, $self->stats->objects);
+
+
+
+
 	$self->_generate_most_common_vocabs($self->stats) if $self->has_stats;
-  
+
+	return $void_model if ($self->has_level && $self->level <= 1);
+
+	$self->_generate_propertypartitions;
+	$self->_generate_classpartitions;
 	return $void_model;
 }
 
@@ -324,6 +344,44 @@ sub _generate_counts {
 																$predicate,
 																literal($count, undef, $xsd->integer),
 															  ));
+}
+
+sub _generate_propertypartitions {
+  my ($self) = @_;
+  return undef unless $self->has_stats;
+  my $properties = $self->stats->propertyPartitions;
+  while (my ($uri, $count) = each(%{$properties})) {
+    my $blank = blank();
+    $self->{void_model}->add_statement(statement(
+						 $self->dataset_uri,
+						 $void->propertyPartition,
+						 $blank));
+    $self->{void_model}->add_statement(statement($blank,
+						 $void->property,
+						 iri($uri)));
+    $self->{void_model}->add_statement(statement($blank,
+						 $void->triples,
+						 literal($count, undef, $xsd->integer)));
+  }
+}
+
+sub _generate_classpartitions {
+  my ($self) = @_;
+  return undef unless $self->has_stats;
+  my $classes = $self->stats->classPartitions;
+  while (my ($uri, $count) = each(%{$classes})) {
+    my $blank = blank();
+    $self->{void_model}->add_statement(statement(
+						 $self->dataset_uri,
+						 $void->classPartition,
+						 $blank));
+    $self->{void_model}->add_statement(statement($blank,
+						 $void->class,
+						 iri($uri)));
+    $self->{void_model}->add_statement(statement($blank,
+						 $void->triples,
+						 literal($count, undef, $xsd->integer)));
+  }
 }
 
 sub _generate_most_common_vocabs {
@@ -350,13 +408,10 @@ sub _generate_most_common_vocabs {
 
 Kjetil Kjernsmo C<< <kjetilk@cpan.org> >>
 Toby Inkster C<< <tobyink@cpan.org> >>
-Tope Omitola, C<< <tope.omitola at googlemail.com> >>
 
 =head1 TODO
 
 =over
-
-=item * Allow arbitrary RDF to be added to the VoID.
 
 =item * Larger test dataset for more extensive tests.
 
@@ -379,8 +434,6 @@ Tope Omitola, C<< <tope.omitola at googlemail.com> >>
 =item * Linkset descriptions.
 
 =item * Set URI space on partitions.
-
-=item * Conditional updates based on model ETags.
 
 =item * Save the description to files?
 
@@ -425,7 +478,7 @@ L<https://metacpan.org/module/RDF::Generator::Void>
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2012 Tope Omitola, Kjetil Kjernsmo, Toby Inkster.
+Copyright 2012 Kjetil Kjernsmo, Toby Inkster.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published

@@ -25,7 +25,7 @@ my $parser     = RDF::Trine::Parser->new( 'turtle' );
 $parser->parse_file_into_model( $base_uri, $testdata, $data_model );
 
 my $void_gen = RDF::Generator::Void->new(dataset_uri => $base_uri . '/dataset',
-													  inmodel => $data_model);
+													  inmodel => $data_model, level => 1);
 $void_gen->urispace($base_uri);
 
 isa_ok($void_gen, 'RDF::Generator::Void');
@@ -88,6 +88,8 @@ has_literal('Arbitrary description of license', 'en', undef, $testmore_model, 'H
 $expected_void_model->add_statement(statement(iri('http://example.org/open-data-license'),
 												 iri('http://www.w3.org/2000/01/rdf-schema#label'),
 												 literal('Arbitrary description of license', 'en')));
+
+hasnt_uri('http://rdfs.org/ns/void#propertyPartition', $testmore_model, 'Hasnt got the propertyPartitions predicate');
 
 isomorph_graphs($expected_void_model, $testmore_model, 'By adding arbitrary triple to expected, these two also becomes isomorph');
 

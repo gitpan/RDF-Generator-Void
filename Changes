@@ -6,10 +6,11 @@ Bug tracker:  <https://github.com/kjetilk/RDF-Generator-Void/issues>
 Maintainer:   Toby Inkster
 Maintainer:   Kjetil Kjernsmo <mailto:kjetilk@cpan.org>
 
-0.04  2012-06-30  # Make it possible to add a model with arbitrary RDF.
+0.05_1  2012-08-21  # More statistics.
 
- - (Addition) Make it possible to add a model with arbitrary RDF.
- - Some cosmetic fixes.
+
+0.04  2012-06-30  # Read static file.
+
 
 0.02  2012-06-20  # Initial release.
 

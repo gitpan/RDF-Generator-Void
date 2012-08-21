@@ -46,6 +46,13 @@ The number of distinct subjects, as defined in the specification.
 
 The number of distinct objects, as defined in the specification.
 
+=head3 C<propertyPartitions>
+
+A hashref containing the number of triples for each property.
+
+=head3 C<classPartitions>
+
+A hashref containing the number of triples for each class.
 
 
 =cut
@@ -61,6 +68,10 @@ has subjects => ( is => 'rw', isa => 'Int' );
 
 has objects => ( is => 'rw', isa => 'Int' );
 
+has propertyPartitions => (is => 'rw', isa => 'HashRef' );
+
+has classPartitions => (is => 'rw', isa => 'HashRef' );
+
 # This is a read-only method, meaning that the constructor has it as a
 # parameter, but then it can only be read from.
 has generator => (
@@ -75,7 +86,7 @@ sub BUILD {
 	my ($self) = @_;
 
 	# Initialize local hashes to count stuff.
-	my (%vocab_counter, %entities, %properties, %subjects, %objects);
+	my (%vocab_counter, %entities, %properties, %subjects, %objects, %classes);
 
 	my $gen = $self->generator;
 	# Here, we take the data in the model we want to generate
@@ -93,7 +104,9 @@ sub BUILD {
 			$vocab_counter{$vocab_uri}++;
 		};
 
-		if ($gen->has_urispace) {
+		
+
+		if ($gen->has_urispace && $st->subject->is_resource) {
 			# Compute entities. We assume that all entities are subjects
 			# with a prefix matching the uriSpace. Again, we use the
 			# property that keys are unique, but we just set it to some
@@ -103,9 +116,17 @@ sub BUILD {
 			$entities{$st->subject->uri_value} = 1 if ($st->subject->uri_value =~ m/^$urispace/);
 		}
 		
-		$subjects{$st->subject->uri_value} = 1;
-		$properties{$st->predicate->uri_value} = 1;
+		$subjects{$st->subject->sse} = 1;
+		$properties{$st->predicate->uri_value}++;
 		$objects{$st->object->sse} = 1;
+
+		unless ($gen->has_level && $gen->level <= 1) {
+			if (($st->predicate->uri_value eq 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
+				 && $st->object->is_resource) {
+				$classes{$st->object->uri_value}++
+			}
+		}
+
 	});
 
 	# Finally, we update the attributes above, they are returned as a side-effect
@@ -114,7 +135,10 @@ sub BUILD {
 	$self->properties(scalar keys %properties);
 	$self->subjects(scalar keys %subjects);
 	$self->objects(scalar keys %objects);
-	
+	unless ($gen->has_level && $gen->level <= 1) {
+	  $self->propertyPartitions(\%properties);
+	  $self->classPartitions(\%classes);
+	}
 }
 
 =head1 FURTHER DOCUMENTATION
