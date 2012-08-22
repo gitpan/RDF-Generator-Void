@@ -23,7 +23,7 @@ RDF::Generator::Void - Generate VoID descriptions based on data in an RDF model
 
 =head1 VERSION
 
-Version 0.05_1
+Version 0.06
 
 Note that this is a beta release. It has the core functionality in
 place to create a basic VoID description and what's there should be
@@ -32,7 +32,7 @@ coming up really soon.
 
 =cut
 
-our $VERSION = '0.05_1';
+our $VERSION = '0.06';
 
 =head1 SYNOPSIS
 
@@ -413,11 +413,7 @@ Toby Inkster C<< <tobyink@cpan.org> >>
 
 =over
 
-=item * Larger test dataset for more extensive tests.
-
 =item * URI regexps support.
-
-=item * Partitioning based on properties and classes.
 
 =item * Technical features (esp. serializations).
 
@@ -435,7 +431,7 @@ Toby Inkster C<< <tobyink@cpan.org> >>
 
 =item * Set URI space on partitions.
 
-=item * Save the description to files?
+=item * Use L<CHI> to cache?
 
 =back
 

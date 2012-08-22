@@ -7,7 +7,7 @@ build_requires:
   ExtUtils::MakeMaker: 6.42
   FindBin: 0
   Test::More: 0.88
-  Test::RDF: 0.2
+  Test::RDF: 0.26
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 distribution_type: module
@@ -32,4 +32,4 @@ resources:
   bugtracker: https://github.com/kjetilk/RDF-Generator-Void/issues
   license: http://dev.perl.org/licenses/
   repository: git://github.com/kjetilk/RDF-Generator-Void.git
-version: 0.05_1
+version: 0.06

@@ -7,7 +7,7 @@ build_requires:
   ExtUtils::MakeMaker: 6.42
   FindBin: 0
   Test::More: 0.88
-  Test::RDF: 0.2
+  Test::RDF: 0.26
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 dynamic_config: 0
