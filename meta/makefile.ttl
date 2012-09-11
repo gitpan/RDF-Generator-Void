@@ -1,0 +1,14 @@
+
+# This file provides instructions for packaging.
+
+@prefix : <http://purl.org/NET/cpan-uri/terms#> .
+@base <http://purl.org/NET/cpan-uri/dist/RDF-Generator-Void/> .
+
+<project>
+    :version_from <project#main> ;
+    :all_from <project#main> ;
+    :readme_from <project#main> ;
+    :test_requires "Test::More 0.88", "Test::RDF 1.10", "FindBin" ;
+    :requires "RDF::Trine", "URI", "Data::UUID", "Moose", "aliased" .
+
+<project#main> <http://www.semanticdesktop.org/ontologies/2007/03/22/nfo#fileName> "lib/RDF/Generator/Void.pm" .
