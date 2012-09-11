@@ -72,7 +72,7 @@ has_literal($base_uri, undef, undef, $test_model, 'Has urispace');
 
 my $testfinal_model = $void_gen->generate;
 
-note(RDF::Trine::Serializer::Turtle->new->serialize_model_to_string($testfinal_model));
+#note(RDF::Trine::Serializer::Turtle->new->serialize_model_to_string($testfinal_model));
 isomorph_graphs($expected_void_model, $testfinal_model, 'Got the expected complete VoID description');
 
 
@@ -90,6 +90,7 @@ $expected_void_model->add_statement(statement(iri('http://example.org/open-data-
 												 literal('Arbitrary description of license', 'en')));
 
 hasnt_uri('http://rdfs.org/ns/void#propertyPartition', $testmore_model, 'Hasnt got the propertyPartitions predicate');
+hasnt_uri('http://rdfs.org/ns/void#classPartition', $testmore_model, 'Hasnt got the classPartitions predicate');
 
 isomorph_graphs($expected_void_model, $testmore_model, 'By adding arbitrary triple to expected, these two also becomes isomorph');
 

@@ -60,13 +60,7 @@ A hashref containing the number of triples for each class.
 # The following attributes also act as read-write methods.
 has vocabularies => ( is => 'rw', isa => 'HashRef' );
 
-has entities => ( is => 'rw', isa => 'Int' );
-
-has properties => ( is => 'rw', isa => 'Int' );
-
-has subjects => ( is => 'rw', isa => 'Int' );
-
-has objects => ( is => 'rw', isa => 'Int' );
+has ['entities', 'properties', 'subjects', 'objects'] => ( is => 'rw', isa => 'Int' );
 
 has propertyPartitions => (is => 'rw', isa => 'HashRef' );
 
@@ -117,14 +111,19 @@ sub BUILD {
 		}
 		
 		$subjects{$st->subject->sse} = 1;
-		$properties{$st->predicate->uri_value}++;
+		$properties{$st->predicate->uri_value}{'triples'}++;
 		$objects{$st->object->sse} = 1;
 
-		unless ($gen->has_level && $gen->level <= 1) {
+		if ((!$gen->has_level) || ($gen->has_level && $gen->level >= 1)) {
 			if (($st->predicate->uri_value eq 'http://www.w3.org/1999/02/22-rdf-syntax-ns#type')
 				 && $st->object->is_resource) {
 				$classes{$st->object->uri_value}++
 			}
+		}
+
+		if ((!$gen->has_level) || ($gen->has_level && $gen->level > 2)) {
+			$properties{$st->predicate->uri_value}{'countsubjects'}{$st->subject->sse} = 1;
+			$properties{$st->predicate->uri_value}{'countobjects'}{$st->object->sse} = 1;
 		}
 
 	});
@@ -135,9 +134,9 @@ sub BUILD {
 	$self->properties(scalar keys %properties);
 	$self->subjects(scalar keys %subjects);
 	$self->objects(scalar keys %objects);
-	unless ($gen->has_level && $gen->level <= 1) {
-	  $self->propertyPartitions(\%properties);
-	  $self->classPartitions(\%classes);
+	if ((!$gen->has_level) || ($gen->has_level && $gen->level >= 1)) {
+		$self->propertyPartitions(\%properties);
+		$self->classPartitions(\%classes);
 	}
 }
 

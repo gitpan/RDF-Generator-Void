@@ -11,6 +11,8 @@ use RDF::Generator::Void::Stats;
 # use less ();
 use utf8;
 
+use aliased 'RDF::Generator::Void::Meta::Attribute::ObjectList';
+
 # Define some namespace prefixes
 my $void = RDF::Trine::Namespace->new('http://rdfs.org/ns/void#');
 my $rdf  = RDF::Trine::Namespace->new('http://www.w3.org/1999/02/22-rdf-syntax-ns#');
@@ -23,16 +25,11 @@ RDF::Generator::Void - Generate VoID descriptions based on data in an RDF model
 
 =head1 VERSION
 
-Version 0.06
-
-Note that this is a beta release. It has the core functionality in
-place to create a basic VoID description and what's there should be
-working well. Nevertheless significant changes in this module may be
-coming up really soon.
+Version 0.07_1
 
 =cut
 
-our $VERSION = '0.06';
+our $VERSION = '0.07_1';
 
 =head1 SYNOPSIS
 
@@ -56,7 +53,7 @@ For a description of VoID, see L<http://www.w3.org/TR/void/>.
 
 =head1 METHODS
 
-=head2 new(inmodel => $mymodel, dataset_uri => URI->new($dataset_uri));
+=head2 new(inmodel => $mymodel, dataset_uri => URI->new($dataset_uri), level => 1);
 
 The constructor. It can be called with two parameters, namely,
 C<inmodel> which is a model we want to describe and C<dataset_uri>,
@@ -116,7 +113,7 @@ values. Methods starting with C<add_> takes a list of values to add,
 and those starting with C<has_no_> return a boolean value, false if
 the array is empty.
 
-=head3 C<vocabulary>, C<all_vocabularies>, C<add_vocabularies>, C<has_no_vocabularies>
+=head3 C<all_vocabularies>, C<add_vocabularies>, C<has_no_vocabularies>
 
 Methods to manipulate a list of vocabularies used in the dataset. The
 values should be a string that represents the URI of a vocabulary.
@@ -126,19 +123,9 @@ values should be a string that represents the URI of a vocabulary.
 # All the following attributes have that in common that they
 # automatically the method names also specified in handles, to
 # manipulate and query the data.
-has vocabulary => (
-						 is       => 'rw',
-						 traits   => ['Array'],
-						 isa      => 'ArrayRef[Str]',
-						 default  => sub { [] },
-						 handles  => {
-										  all_vocabularies    => 'uniq',
-										  add_vocabularies    => 'push',
-										  has_no_vocabularies => 'is_empty',
-										 },
-						);
+has _vocabularies => ( traits => [ObjectList] );
 
-=head3 C<endpoint>, C<all_endpoints>, C<add_endpoints>, C<has_no_endpoints>
+=head3 C<all_endpoints>, C<add_endpoints>, C<has_no_endpoints>
 
 Methods to manipulate a list of SPARQL endpoints that can be used to
 query the dataset. The values should be a string that represents the
@@ -147,19 +134,9 @@ URI of a SPARQL endpoint.
 =cut
 
 
-has endpoint => (
-					  is       => 'rw',
-					  traits   => ['Array'],
-					  isa      => 'ArrayRef[Str]',
-					  default  => sub { [] },
-					  handles  => {
-										all_endpoints    => 'uniq',
-										add_endpoints    => 'push',
-										has_no_endpoints => 'is_empty',
-									  },
-					 );
+has _endpoints => ( traits => [ObjectList] );
 
-=head3 C<title>, C<all_titles>, C<add_titles>, C<has_no_titles>
+=head3 C<all_titles>, C<add_titles>, C<has_no_titles>
 
 Methods to manipulate the titles of the datasets. The values should be
 L<RDF::Trine::Node::Literal> objects, and should be set with
@@ -168,20 +145,13 @@ language. Typically, you would have a value per language.
 =cut
 
 
-has title => (
-				  is       => 'rw',
-				  traits   => ['Array'],
+has _titles => ( 
+				  traits => [ObjectList],
 				  isa      => 'ArrayRef[RDF::Trine::Node::Literal]',
-				  default  => sub { [] },
-				  handles  => {
-									all_titles    => 'uniq',
-									add_titles    => 'push',
-									has_no_titles => 'is_empty',
-								  },
 				 );
 
 
-=head3 C<license>, C<all_licenses>, C<add_licenses>, C<has_no_licenses>
+=head3 C<all_licenses>, C<add_licenses>, C<has_no_licenses>
 
 Methods to manipulate a list of licenses that regulates the use of the
 dataset. The values should be a string that represents the URI of a
@@ -189,17 +159,7 @@ license.
 
 =cut
 
-has license => (
-					 is       => 'rw',
-					 traits   => ['Array'],
-					 isa      => 'ArrayRef[Str]',
-					 default  => sub { [] },
-					 handles  => {
-									  all_licenses    => 'uniq',
-									  add_licenses    => 'push',
-									  has_no_licenses => 'is_empty',
-									 },
-					);
+has _licenses => ( traits => [ObjectList] );
 
 =head3 C<urispace>, C<has_urispace>
 
@@ -223,8 +183,9 @@ has urispace => (
 =head3 C<level>, C<has_level>
 
 Set the level of detail. 0 doesn't do any statistics or heuristics, 1
-has some statistics for the dataset as a whole. Setting no level will
-give everything.
+has some statistics for the dataset as a whole, 2 will give some
+partition statistics and 3 will give subject and object counts for
+property partitions. Setting no level will give everything.
 
 =cut
 
@@ -315,7 +276,7 @@ sub generate {
 														 $void->uriSpace,
 														 literal($self->urispace)
 														));
-		return $void_model if ($self->has_level && $self->level == 0);
+		return $void_model if ($self->has_level && ($self->level == 0));
 		$self->_generate_counts($void->entities, $self->stats->entities);
 	}
 
@@ -323,9 +284,6 @@ sub generate {
 	$self->_generate_counts($void->distinctSubjects, $self->stats->subjects);
 	$self->_generate_counts($void->properties, $self->stats->properties);
 	$self->_generate_counts($void->distinctObjects, $self->stats->objects);
-
-
-
 
 	$self->_generate_most_common_vocabs($self->stats) if $self->has_stats;
 
@@ -350,7 +308,7 @@ sub _generate_propertypartitions {
   my ($self) = @_;
   return undef unless $self->has_stats;
   my $properties = $self->stats->propertyPartitions;
-  while (my ($uri, $count) = each(%{$properties})) {
+  while (my ($uri, $counts) = each(%{$properties})) {
     my $blank = blank();
     $self->{void_model}->add_statement(statement(
 						 $self->dataset_uri,
@@ -361,7 +319,19 @@ sub _generate_propertypartitions {
 						 iri($uri)));
     $self->{void_model}->add_statement(statement($blank,
 						 $void->triples,
-						 literal($count, undef, $xsd->integer)));
+						 literal($counts->{'triples'}, undef, $xsd->integer)));
+	 # OK, so sometimes, one has to balance elegance and performance...
+	 if ($counts->{'countsubjects'}) {
+		 $self->{void_model}->add_statement(statement($blank,
+						 $void->distinctSubjects,
+						 literal(scalar keys %{$counts->{'countsubjects'}}, undef, $xsd->integer)));
+		 $self->{void_model}->add_statement(statement($blank,
+						 $void->distinctObjects,
+						 literal(scalar keys %{$counts->{'countobjects'}}, undef, $xsd->integer)));
+	 }
+
+		 
+
   }
 }
 
@@ -433,12 +403,23 @@ Toby Inkster C<< <tobyink@cpan.org> >>
 
 =item * Use L<CHI> to cache?
 
+=item * Use schema introspection to generate property attributes with L<MooseX::Semantics>.
+
+
+
 =back
 
 
 =head1 BUGS
 
 Please report any bugs you find to L<https://github.com/kjetilk/RDF-Generator-Void/issues>
+
+Note that any claim that this module will generate a void in
+spacetime, a wormhole, black hole, or funny philosophy is totally
+bogus and without any scientific merit whatsoever. The lead author has
+made elaborate precautions to avoid any such issues, and expects
+everyone to take his word for it. Oh, BTW, should it just happen
+anyway, it won't L<hurt much|http://news.sciencemag.org/sciencenow/2012/03/scienceshot-one-black-hole-wont-.html>.
 
 
 =head1 SUPPORT
@@ -471,6 +452,7 @@ L<https://metacpan.org/module/RDF::Generator::Void>
 
 =head1 ACKNOWLEDGEMENTS
 
+Many thanks to Konstantin Baierer for help with L<RDF::Generator::Void::Meta::Attribute::ObjectList>.
 
 =head1 LICENSE AND COPYRIGHT
 

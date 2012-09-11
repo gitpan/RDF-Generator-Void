@@ -4,10 +4,10 @@ author:
   - 'Kjetil Kjernsmo C<< <kjetilk@cpan.org> >>'
   - 'Kjetil Kjernsmo <kjetilk@cpan.org>'
 build_requires:
-  ExtUtils::MakeMaker: 6.42
+  ExtUtils::MakeMaker: 6.59
   FindBin: 0
   Test::More: 0.88
-  Test::RDF: 0.26
+  Test::RDF: 1.1
 configure_requires:
   ExtUtils::MakeMaker: 6.42
 dynamic_config: 0
@@ -27,9 +27,10 @@ requires:
   Moose: 0
   RDF::Trine: 0
   URI: 0
+  aliased: 0
   perl: 5.006
 resources:
   bugtracker: https://github.com/kjetilk/RDF-Generator-Void/issues
   license: http://dev.perl.org/licenses/
   repository: git://github.com/kjetilk/RDF-Generator-Void.git
-version: 0.05_1
+version: 0.06
