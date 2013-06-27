@@ -10,6 +10,7 @@ use RDF::Trine qw[iri literal blank variable statement];
 use RDF::Generator::Void::Stats;
 # use less ();
 use utf8;
+use URI::Split qw(uri_split uri_join);
 
 use aliased 'RDF::Generator::Void::Meta::Attribute::ObjectList';
 
@@ -18,6 +19,7 @@ my $void = RDF::Trine::Namespace->new('http://rdfs.org/ns/void#');
 my $rdf  = RDF::Trine::Namespace->new('http://www.w3.org/1999/02/22-rdf-syntax-ns#');
 my $xsd  = RDF::Trine::Namespace->new('http://www.w3.org/2001/XMLSchema#');
 my $dct  = RDF::Trine::Namespace->new('http://purl.org/dc/terms/');
+my $prov = RDF::Trine::Namespace->new('http://www.w3.org/ns/prov#');
 
 =head1 NAME
 
@@ -25,11 +27,11 @@ RDF::Generator::Void - Generate VoID descriptions based on data in an RDF model
 
 =head1 VERSION
 
-Version 0.10
+Version 0.11_1
 
 =cut
 
-our $VERSION = '0.10';
+our $VERSION = '0.11_1';
 
 =head1 SYNOPSIS
 
@@ -238,6 +240,27 @@ sub generate {
 													 $rdf->type,
 													 $void->Dataset,
 													));
+
+	my ($scheme, $auth, $path, $query, $frag) = uri_split($self->dataset_uri->uri_value);
+	if ($frag) { # Then, we have a document that could be described with provenance
+		my $uri = iri(uri_join($scheme, $auth, $path, $query, undef));
+		my $blank = blank();
+		$void_model->add_statement(statement($uri,
+														 $prov->wasGeneratedBy,
+														 $blank));
+		(my $ver = $VERSION) =~ s/\./-/;
+		my $release_uri = iri("http://purl.org/NET/cpan-uri/dist/RDF-Generator-Void/v_$ver");
+		$void_model->add_statement(statement($blank,
+														 $prov->wasAssociatedWith,
+														 $release_uri));
+		$void_model->add_statement(statement($release_uri,
+														 $rdf->type,
+													    $prov->SoftwareAgent));
+		$void_model->add_statement(statement($release_uri,
+														 iri('http://www.w3.org/2000/01/rdf-schema#label'),
+													    literal("RDF::Generator::Void, Version $VERSION", 'en')));
+	}
+
 
 	foreach my $endpoint ($self->all_endpoints) {
 		$void_model->add_statement(statement(
@@ -456,7 +479,8 @@ Many thanks to Konstantin Baierer for help with L<RDF::Generator::Void::Meta::At
 
 =head1 LICENSE AND COPYRIGHT
 
-Copyright 2012 Kjetil Kjernsmo, Toby Inkster.
+Copyright 2012 Toby Inkster.
+Copyright 2012-2013 Kjetil Kjernsmo.
 
 This program is free software; you can redistribute it and/or modify it
 under the terms of either: the GNU General Public License as published

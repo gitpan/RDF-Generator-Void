@@ -19,6 +19,7 @@ inc/Module/Package/Dist/RDF.pm
 inc/Scalar/Util.pm
 inc/utf8.pm
 inc/YAML/Tiny.pm
+lib/App/perlrdf/Command/Void.pm
 lib/RDF/Generator/Void.pm
 lib/RDF/Generator/Void/Meta/Attribute/ObjectList.pm
 lib/RDF/Generator/Void/Stats.pm
@@ -40,3 +41,4 @@ t/data/generated-expected.ttl
 t/data/generated.ttl
 t/extended.t
 t/levels.t
+t/perlrdfapp.t

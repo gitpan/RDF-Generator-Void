@@ -6,6 +6,7 @@ author:
   - 'Toby Inkster'
 build_requires:
   ExtUtils::MakeMaker: 6.36
+  File::Temp: 0
   FindBin: 0
   Test::More: 0.88
   Test::RDF: 1.10
@@ -26,6 +27,8 @@ no_index:
     - inc
     - t
     - xt
+recommends:
+  App::perlrdf: 0
 requires:
   Data::UUID: 0
   Moose: 0
@@ -36,4 +39,4 @@ requires:
 resources:
   bugtracker: https://github.com/kjetilk/RDF-Generator-Void/issues
   license: http://dev.perl.org/licenses/
-version: 0.10
+version: 0.11_1
