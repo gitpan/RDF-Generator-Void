@@ -14,12 +14,12 @@ not run its Makefile.PL or Build.PL.
 -----BEGIN PGP SIGNED MESSAGE-----
 Hash: SHA1
 
-SHA1 3712eaa82ccaa6b9cab4d372f96ad0e93330c40b Changes
+SHA1 a62761d9912ee64e4ec034471a43939dbde20bd0 Changes
 SHA1 acee4f370b7efbef5b75fdabe24578fcef5e3b2c LICENSE
 SHA1 40141767f1ac472038a769c919451caa08ffa6cf MANIFEST
-SHA1 25cca3568d8ae69f8e693aa9c69fcff410a1a935 META.yml
-SHA1 35f23324021bf4bb6990b63b2a85eb406e14714d Makefile.PL
-SHA1 83d50401520699d9fa30dc19e71a5b65f6976929 README
+SHA1 0d5f374f0618143d97f56812f7678d60860002b7 META.yml
+SHA1 e3eb24b8807a11c188ee4daef0b290a0c80aae1d Makefile.PL
+SHA1 76b4ab74066796ee2585f135c02fe32f3687b305 README
 SHA1 931ff86cad0758e4b8741536de623f11e9e4074f ignore.txt
 SHA1 06c410f05488c1612ed66b06d3a86b2580581e4a inc/Module/AutoInstall.pm
 SHA1 8a924add836b60fb23b25c8506d45945e02f42f4 inc/Module/Install.pm
@@ -41,16 +41,16 @@ SHA1 0e0eed2e69d9583081868cf4f220068d0a018568 inc/Scalar/Util.pm
 SHA1 feb933cefe2e3762e8322bd6071a2499f3440da1 inc/YAML/Tiny.pm
 SHA1 d6af6cc85d08e4020e928090b33dad2eb314711f inc/utf8.pm
 SHA1 973bad695f6177bca8d9168004dd0c025fd87d19 lib/App/perlrdf/Command/Void.pm
-SHA1 e588b0e998c2f64f5e7f733ecaf655e4e78bb3c5 lib/RDF/Generator/Void.pm
+SHA1 7662324162f504ccec3835edc3f668faf2b12da5 lib/RDF/Generator/Void.pm
 SHA1 03c704e6a404b1a682000baeda1ecc48cce33354 lib/RDF/Generator/Void/Meta/Attribute/ObjectList.pm
 SHA1 d45c6d59ba140b55ea6f5006bd96293d3e64cef4 lib/RDF/Generator/Void/Stats.pm
-SHA1 05f080c4c19423e1c1af13894e8d648fe2bf1f87 meta/changes.ttl
+SHA1 b9602c3aa2fe1c824a093a522143117b88b59f61 meta/changes.ttl
 SHA1 ba21c8872c279c488622e8fe6e4276ceffdbab08 meta/makefile.ttl
 SHA1 8de08760d5d0d44e7f59f00b7bce5ff409bb9e4d meta/people.ttl
 SHA1 443b6b39d9dc72b41a00e6998cc839cd4a8f809d meta/project.ttl
 SHA1 12f3d13dcf989c6f81ce2148b779605150536bb7 t/00-load.t
 SHA1 40911817f6debf589b9c83520f3c271eba6bb532 t/basic.t
-SHA1 6fc0ca8a273fe3d4c84f2b08178b6dce603da58d t/data/basic-expected.ttl
+SHA1 bff159561df91225a30fceaa0d7c083c3a2886d1 t/data/basic-expected.ttl
 SHA1 874a27ab32d5762e603c7e213708e3d9752eef76 t/data/basic.ttl
 SHA1 54c14502cfe404c069fb4a06dfa6fb8245762def t/data/generated-expected.ttl
 SHA1 24c3b5e756f7be18edfb814f2ea1d2a38e391f20 t/data/generated.ttl
@@ -60,17 +60,17 @@ SHA1 a41bb30dc83ca326c6cecd649441cffa54c3c5c0 t/perlrdfapp.t
 -----BEGIN PGP SIGNATURE-----
 Version: GnuPG v1.4.12 (GNU/Linux)
 
-iQIcBAEBAgAGBQJRzf3EAAoJEH++6N86nkqlz/gP/3qcVmBNUpoiQ+HQ9MJUeP2e
-wtW6Qh5nuH2gUMIRwLvyaTGPkwP6UPOa69qikLTN0gfOWc7xDSWzbdglp/Opqbds
-+ioj4NU+Lm/mrcq4xmTcI3uJLbHg0dal3pQqjP9fUCPXCmYlujYxF8N0GDUs07Vp
-WqN2O/wysVZ8Zj2K9Ckl1i8VKM9KKSePZpsiKxNlLwHT/iTbq4I4jT0/6E+FmAyl
-9OdV4ZtJPCcnzZbS5yAp27yB4QvoYy0/J+1F41xZXgxfpwcbJt2nX9VlVFLk7fK1
-+fflQU41D84T2dcA1uoLcg5Pf0RXB5AZ3wvUNNM2ZCF5L5wAyaTL43nk/L72LR78
-tN5O8X4MsNu0a4V5K6HIF+OuD6oPl9lnzKjnoRXxh1c55iI5KBhNzDSbuhKCOwf1
-vmhE2QtS2FbRfhL97aHrNrwIjyCUhxg2zmCYodcpPbw1QvO8h2k3+ghQt2aufLQz
-Jg38Q+C4GhmHzwHpqaruoDCSpYxjYEMqGw8xm52zs95KfsCNp/3tgEMfMB/8ykEH
-FGbiaqhyPKGA/Ez7ewKD21uEFAyXnguTeiMkaq6Lis5neCqr3Nh12gh0LlMvVlr5
-/LQ7Zjc8aM11LPPF3wyWB9rsu19+viwEs+Rpnz4iB0ZWWIxOw52IdlpnjBOWQV+A
-OXLaSF4m8gxVgF8fvaBc
-=r4CE
+iQIcBAEBAgAGBQJRzgbmAAoJEH++6N86nkqlVRIP/2XLn4goswxbt2S6jdIM4Ddv
+PsybHm/Yu+uRjaBkoHBJouAgqpxqKyqx3MCkwGsNrIDa8i90o+URpKwNfbjoodMF
+gHa4fpsGVG6ujh77KgPKJcEQVE6qs/ocuDOiLM3Tm6+iAYkfxBQKFFco08pG3Aih
+PsnMcv9NWO4yjDXbRsz5fpYTp5RIkLKGest5JZYJwUF+cguv66rSyKjxq+VE5kDy
+DSADeXiDLrrFY6UZw6BQrVApQsxdvrK57j0WeysMZDEwZ9NPP8suusTW07sINo/H
+bds14td7Y3livjqorWEjuNrbRV0B2YX4ZBQjSLGpLMnT0r5NM6bsv4bLFGQS8Pvm
+GubplQQs3kLuRRdf1If/IpjE/qloe23WgMNbQRGjuMztg6fVVA8n0CQv46CR5woN
+sj4hWGla5BL0KcY2jETVuix5pJwT1BzPloa+NIBOLJ8wLfT7whU/XsRA5bBl4BUr
+mwVnsleqMGOtljR06MkW3b3rLK2bget4iefab9VjiaAa//X31WhXly3rI0O0LbkX
+cqSpEa4hyPc9KW8r5iEI2jxWrazBAzqfOeP7adfuSuQWHUUyy9huQoRTUl6U8kMf
+Qj3t6ZkCRNIha8Mz0E//MV/WcFasqoYsU9OMlT9oj80rk44QzPOF4Tm/vvm3iu0T
+cpFO6hh1oISawfove5lD
+=Nz/t
 -----END PGP SIGNATURE-----
