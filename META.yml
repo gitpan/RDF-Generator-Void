@@ -28,7 +28,7 @@ no_index:
     - t
     - xt
 recommends:
-  App::perlrdf: 0
+  App::perlrdf: 0.004
 requires:
   Data::UUID: 0
   Moose: 0
@@ -39,4 +39,4 @@ requires:
 resources:
   bugtracker: https://github.com/kjetilk/RDF-Generator-Void/issues
   license: http://dev.perl.org/licenses/
-version: 0.11_3
+version: 0.11_4
