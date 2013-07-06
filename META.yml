@@ -39,4 +39,4 @@ requires:
 resources:
   bugtracker: https://github.com/kjetilk/RDF-Generator-Void/issues
   license: http://dev.perl.org/licenses/
-version: 0.11_5
+version: 0.12
