@@ -1,6 +1,10 @@
 package App::perlrdf::Command::Void;
 
 use strict;
+unless ($ENV{'HARNESS_ACTIVE'} || $ENV{'AUTOMATED_TESTING'}) {
+	use Progress::Any::Output;
+	Progress::Any::Output->set('TermProgressBarColor');
+}
 use warnings;
 use utf8;
 

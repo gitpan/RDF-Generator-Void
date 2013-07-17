@@ -11,6 +11,7 @@ use RDF::Generator::Void::Stats;
 # use less ();
 use utf8;
 use URI::Split qw(uri_split uri_join);
+use Progress::Any;
 
 use aliased 'RDF::Generator::Void::Meta::Attribute::ObjectList';
 
@@ -27,11 +28,11 @@ RDF::Generator::Void - Generate VoID descriptions based on data in an RDF model
 
 =head1 VERSION
 
-Version 0.12
+Version 0.13_1
 
 =cut
 
-our $VERSION = '0.12';
+our $VERSION = '0.13_1';
 
 =head1 SYNOPSIS
 
@@ -99,6 +100,9 @@ has dataset_uri => (
 						  builder  => '_build_dataset_uri',
 						  coerce   => 1,
 						 );
+
+our $progress; # Declared for everything in here
+
 
 # This will create a URN with a UUID by default
 sub _build_dataset_uri {
@@ -231,7 +235,14 @@ a model, one will be created for you.
 sub generate {
 	my $self = shift;
 	my $void_model = shift || RDF::Trine::Model->temporary_model;
-
+	local $progress = Progress::Any->get_indicator(task => "compute");
+	$progress->pos(0);
+	my $target_size = 11;
+	if ($self->has_level && ($self->level > 0)) {
+		$target_size += $self->inmodel->size;
+	}
+	$progress->target($target_size);
+	$progress->update(message => "Adding base statements");
 	local $self->{void_model} = $void_model;
 
 	# Start generating the actual VoID statements
@@ -240,6 +251,7 @@ sub generate {
 													 $rdf->type,
 													 $void->Dataset,
 													));
+	$progress->update(message => "Adding base statements");
 
 	my ($scheme, $auth, $path, $query, $frag) = uri_split($self->dataset_uri->uri_value);
 	if ($frag) { # Then, we have a document that could be described with provenance
@@ -259,8 +271,8 @@ sub generate {
 		$void_model->add_statement(statement($release_uri,
 														 iri('http://www.w3.org/2000/01/rdf-schema#label'),
 													    literal("RDF::Generator::Void, Version $VERSION", 'en')));
+		$progress->update(message => "Adding provenance statements");
 	}
-
 
 	foreach my $endpoint ($self->all_endpoints) {
 		$void_model->add_statement(statement(
@@ -286,6 +298,7 @@ sub generate {
 														));
 	}
 
+	$progress->update(message => "Adding user-set statements");
 
 	$void_model->add_statement(statement(
 													 $self->dataset_uri,
@@ -293,6 +306,7 @@ sub generate {
 													 literal($self->inmodel->size, undef, $xsd->integer),
 													));
 
+	$progress->update(message => "Adding base statements");
 	if ($self->has_urispace) {
 		$void_model->add_statement(statement(
 														 $self->dataset_uri,
@@ -303,6 +317,7 @@ sub generate {
 		$self->_generate_counts($void->entities, $self->stats->entities);
 	}
 
+
 	return $void_model if ($self->has_level && $self->level == 0);
 	$self->_generate_counts($void->distinctSubjects, $self->stats->subjects);
 	$self->_generate_counts($void->properties, $self->stats->properties);
@@ -312,8 +327,14 @@ sub generate {
 
 	return $void_model if ($self->has_level && $self->level <= 1);
 
+	$target_size += scalar(keys(%{$self->stats->propertyPartitions}));
+	$target_size += scalar(keys(%{$self->stats->classPartitions}));
+	$progress->target($target_size);
+
 	$self->_generate_propertypartitions;
 	$self->_generate_classpartitions;
+	$progress->update(message => "Finishing"); 
+
 	return $void_model;
 }
 
@@ -325,6 +346,7 @@ sub _generate_counts {
 																$predicate,
 																literal($count, undef, $xsd->integer),
 															  ));
+	$progress->update(message => "Adding counts statements");
 }
 
 sub _generate_propertypartitions {
@@ -353,7 +375,7 @@ sub _generate_propertypartitions {
 						 literal(scalar keys %{$counts->{'countobjects'}}, undef, $xsd->integer)));
 	 }
 
-		 
+	 $progress->update(message => "Adding property partition statements"); 
 
   }
 }
@@ -374,6 +396,7 @@ sub _generate_classpartitions {
     $self->{void_model}->add_statement(statement($blank,
 						 $void->triples,
 						 literal($count, undef, $xsd->integer)));
+	 $progress->update(message => "Adding class partition statements"); 
   }
 }
 
@@ -394,6 +417,8 @@ sub _generate_most_common_vocabs {
 																	iri($vocab),
 																  ));
 	}
+	$progress->update(message => "Adding vocabulary statements"); 
+	
 }
 
 
