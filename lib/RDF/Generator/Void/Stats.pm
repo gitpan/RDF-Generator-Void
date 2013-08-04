@@ -1,5 +1,4 @@
 package RDF::Generator::Void::Stats;
-use Progress::Any;
 
 use 5.006;
 use strict;
@@ -82,10 +81,8 @@ sub BUILD {
 
 	# Initialize local hashes to count stuff.
 	my (%vocab_counter, %entities, %properties, %subjects, %objects, %classes);
-	my $progress = Progress::Any->get_indicator(task => "compute");
- 
-	my $gen = $self->generator;
 
+	my $gen = $self->generator;
 	# Here, we take the data in the model we want to generate
 	# statistics for and we iterate over it. Doing it this way, we
 	# should be able to generate all statistics in a single pass of the
@@ -128,9 +125,8 @@ sub BUILD {
 			$properties{$st->predicate->uri_value}{'countsubjects'}{$st->subject->sse} = 1;
 			$properties{$st->predicate->uri_value}{'countobjects'}{$st->object->sse} = 1;
 		}
-		$progress->update(message => "Examening triples");
-	});
 
+	});
 
 	# Finally, we update the attributes above, they are returned as a side-effect
 	$self->vocabularies(\%vocab_counter);
@@ -142,7 +138,6 @@ sub BUILD {
 		$self->propertyPartitions(\%properties);
 		$self->classPartitions(\%classes);
 	}
-	$progress->update(message => "Data transfer");
 }
 
 =head1 FURTHER DOCUMENTATION

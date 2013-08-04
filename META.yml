@@ -29,12 +29,9 @@ no_index:
     - xt
 recommends:
   App::perlrdf: 0.004
-  Progress::Any::Output: 0
-  Progress::Any::Output::TermProgressBarColor: 0
 requires:
   Data::UUID: 0
   Moose: 0
-  Progress::Any: 0
   RDF::Trine: 0
   URI: 0
   aliased: 0
@@ -42,4 +39,4 @@ requires:
 resources:
   bugtracker: https://github.com/kjetilk/RDF-Generator-Void/issues
   license: http://dev.perl.org/licenses/
-version: 0.13_1
+version: 0.13
